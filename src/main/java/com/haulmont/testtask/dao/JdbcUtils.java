@@ -1,9 +1,8 @@
 package com.haulmont.testtask.dao;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.haulmont.testtask.dao.hsqldb.HsqlDaoFactory;
+
+import java.sql.*;
 
 /**
  * Created by Черный on 06.02.2017.
@@ -36,6 +35,24 @@ public class JdbcUtils {
             } catch (SQLException e) {
                 System.out.println("Cannot close connection");
             }
+        }
+    }
+
+    public static void createDB() {
+        String sql = "";
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = HsqlDaoFactory.getInstance().getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.execute();
+        } catch (Exception e) {
+            System.out.println("Create DB exception");
+            e.printStackTrace();
+        } finally {
+            JdbcUtils.closeQuietly(preparedStatement);
+            JdbcUtils.closeQuietly(connection);
         }
     }
 }

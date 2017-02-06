@@ -21,6 +21,7 @@ public class HsqlDaoFactory implements DaoFactory {
         try {
             Class.forName(driver);
         } catch (ClassNotFoundException e) {
+            System.out.println("JDBC driver exception");
             e.printStackTrace();
         }
     }
@@ -30,6 +31,7 @@ public class HsqlDaoFactory implements DaoFactory {
             try {
                 daoFactory = new HsqlDaoFactory();
             } catch (Exception e) {
+                System.out.println("Don't created DaoFactory");
                 e.printStackTrace();
             }
         }
@@ -41,6 +43,7 @@ public class HsqlDaoFactory implements DaoFactory {
         try {
             connection = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
+            System.out.println("Get connection exception");
             e.printStackTrace();
         }
         return connection;

@@ -21,7 +21,7 @@ public class HsqlCustomerDao implements CustomerDao {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, customer.getName());
             preparedStatement.setString(2, customer.getSurname());
-            preparedStatement.setString(3, customer.getMiddleName());
+            preparedStatement.setString(3, customer.getPatronymic());
             preparedStatement.setString(4, customer.getPhone());
             preparedStatement.execute();
         } catch (SQLException e) {
@@ -75,7 +75,7 @@ public class HsqlCustomerDao implements CustomerDao {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, customer.getName());
             preparedStatement.setString(2, customer.getSurname());
-            preparedStatement.setString(3, customer.getMiddleName());
+            preparedStatement.setString(3, customer.getPatronymic());
             preparedStatement.setString(4, customer.getPhone());
             preparedStatement.setLong(5, customer.getId());
             preparedStatement.execute();

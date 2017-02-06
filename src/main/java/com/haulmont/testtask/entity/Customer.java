@@ -7,13 +7,13 @@ public class Customer {
     private Long id;
     private String name;
     private String surname;
-    private String middleName;
+    private String patronymic;
     private String phone;
 
-    public Customer(String name, String surname, String middleName, String phone) {
+    public Customer(String name, String surname, String patronymic, String phone) {
         this.name = name;
         this.surname = surname;
-        this.middleName = middleName;
+        this.patronymic = patronymic;
         this.phone = phone;
     }
 
@@ -41,12 +41,12 @@ public class Customer {
         this.surname = surname;
     }
 
-    public String getMiddleName() {
-        return middleName;
+    public String getPatronymic() {
+        return patronymic;
     }
 
-    public void setMiddleName(String middleName) {
-        this.middleName = middleName;
+    public void setPatronymic(String patronymic) {
+        this.patronymic = patronymic;
     }
 
     public String getPhone() {
@@ -62,7 +62,7 @@ public class Customer {
         return "Customer{" +
                 "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
-                ", middleName='" + middleName + '\'' +
+                ", patronymic='" + patronymic + '\'' +
                 ", phone='" + phone + '\'' +
                 '}';
     }
