@@ -2,10 +2,12 @@ package com.haulmont.testtask.dao;
 
 import com.haulmont.testtask.entity.Customer;
 
+import java.sql.ResultSet;
+
 /**
  * Created by Черный on 02.02.2017.
  */
-public interface CustomerDAO {
+public interface CustomerDao {
 
     void create(Customer customer);
 
@@ -14,4 +16,6 @@ public interface CustomerDAO {
     void update(Customer customer);
 
     void delete(Customer customer);
+
+    Customer parseResultSet(ResultSet resultSet);
 }
