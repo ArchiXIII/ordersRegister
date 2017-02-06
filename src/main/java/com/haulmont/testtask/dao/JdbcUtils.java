@@ -1,4 +1,4 @@
-package com.haulmont.testtask.dao.hsqldb;
+package com.haulmont.testtask.dao;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

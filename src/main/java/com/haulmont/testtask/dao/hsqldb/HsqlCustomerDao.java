@@ -1,6 +1,7 @@
 package com.haulmont.testtask.dao.hsqldb;
 
 import com.haulmont.testtask.dao.CustomerDao;
+import com.haulmont.testtask.dao.JdbcUtils;
 import com.haulmont.testtask.entity.Customer;
 
 import java.sql.*;
@@ -17,15 +18,15 @@ public class HsqlCustomerDao implements CustomerDao {
         PreparedStatement preparedStatement = null;
         try {
             connection = HsqlDaoFactory.getInstance().getConnection();
-            preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, customer.getName());
             preparedStatement.setString(2, customer.getSurname());
             preparedStatement.setString(3, customer.getMiddleName());
             preparedStatement.setString(4, customer.getPhone());
             preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
             System.out.println("Customer insert exception");
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -69,7 +70,6 @@ public class HsqlCustomerDao implements CustomerDao {
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         try {
             connection = HsqlDaoFactory.getInstance().getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -79,15 +79,12 @@ public class HsqlCustomerDao implements CustomerDao {
             preparedStatement.setString(4, customer.getPhone());
             preparedStatement.setLong(5, customer.getId());
             preparedStatement.execute();
-            resultSet = preparedStatement.getGeneratedKeys();
-            resultSet.next();
         } catch (SQLException e) {
             System.out.println("Customer update exception");
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            JdbcUtils.closeQuietly(resultSet);
             JdbcUtils.closeQuietly(preparedStatement);
             JdbcUtils.closeQuietly(connection);
         }
