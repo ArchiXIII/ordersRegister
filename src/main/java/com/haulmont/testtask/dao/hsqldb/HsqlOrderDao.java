@@ -67,7 +67,7 @@ public class HsqlOrderDao implements OrderDao {
 
     @Override
     public void update(Order order) {
-        String sql = "update orders set description = ?, customer = ?, endworksdate = ?, price = ?, state = ? where id = ?;";
+        String sql = "update orders set description = ?, customer = ?, end_works_date = ?, price = ?, state = ? where id = ?;";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
