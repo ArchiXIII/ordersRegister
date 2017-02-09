@@ -12,7 +12,7 @@ import java.sql.*;
 public class HsqlCustomerDao implements CustomerDao {
     @Override
     public void create(Customer customer) {
-        String sql = "insert into users values (default, ?, ?, ?, ?);";
+        String sql = "insert into customers values (default, ?, ?, ?, ?);";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -37,7 +37,7 @@ public class HsqlCustomerDao implements CustomerDao {
 
     @Override
     public Customer read(String name) {
-        String sql = "select * from users where name = ?;";
+        String sql = "select * from customers where name = ?;";
 
         Customer customer = null;
         Connection connection = null;
