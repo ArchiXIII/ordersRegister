@@ -6,6 +6,7 @@ import com.haulmont.testtask.dao.OrderDao;
 import com.haulmont.testtask.entity.Order;
 
 import java.sql.*;
+import java.sql.Date;
 import java.util.ArrayList;
 
 /**
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 public class HsqlOrderDao implements OrderDao {
     @Override
     public void create(Order order) {
-        String sql = "insert into orders values (default, ?, ?, sysdate, default, ?, ?);";
+        String sql = "insert into orders values (default, ?, ?, ?, default, ?, ?);";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -22,9 +23,10 @@ public class HsqlOrderDao implements OrderDao {
             connection = HsqlDaoFactory.getInstance().getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, order.getDescription());
-            preparedStatement.setString(2, order.getCustomer().getName());
-            preparedStatement.setInt(3, order.getPrice());
-            preparedStatement.setString(4, order.getState().toString());
+            preparedStatement.setLong(2, order.getCustomer().getId());
+            preparedStatement.setDate(3, new Date(order.getCreatedDate().getTime()));
+            preparedStatement.setInt(4, order.getPrice());
+            preparedStatement.setString(5, order.getState().toString());
             preparedStatement.execute();
         } catch (SQLException e) {
             System.out.println("Order insert exception");
@@ -41,7 +43,7 @@ public class HsqlOrderDao implements OrderDao {
     public ArrayList<Order> readAll() {
         String sql = "select * from orders;";
 
-        ArrayList<Order> orders = null;
+        ArrayList<Order> orders = new ArrayList<Order>();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -67,7 +69,7 @@ public class HsqlOrderDao implements OrderDao {
 
     @Override
     public void update(Order order) {
-        String sql = "update orders set description = ?, customer = ?, end_works_date = ?, price = ?, state = ? where id = ?;";
+        String sql = "update orders set description = ?, customer_id = ?, end_works_date = ?, price = ?, state_order = ? where order_id = ?;";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -75,8 +77,8 @@ public class HsqlOrderDao implements OrderDao {
             connection = HsqlDaoFactory.getInstance().getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, order.getDescription());
-            preparedStatement.setString(2, order.getCustomer().getName());
-            preparedStatement.setDate(3, (Date) order.getEndWorksDate());
+            preparedStatement.setLong(2, order.getCustomer().getId());
+            preparedStatement.setDate(3, new Date(order.getEndWorksDate().getTime()));
             preparedStatement.setInt(4, order.getPrice());
             preparedStatement.setString(5, order.getState().toString());
             preparedStatement.setLong(6, order.getId());
@@ -94,7 +96,7 @@ public class HsqlOrderDao implements OrderDao {
 
     @Override
     public void delete(Order order) {
-        String sql = "delete from orders where id = ?;";
+        String sql = "delete from orders where order_id = ?;";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -119,8 +121,8 @@ public class HsqlOrderDao implements OrderDao {
         CustomerDao customerDao = new HsqlCustomerDao();
         Order order = null;
         try {
-            order = new Order(resultSet.getString("description"), customerDao.read(resultSet.getString("customer")), resultSet.getInt("price"));
-            order.setId(resultSet.getLong("id"));
+            order = new Order(resultSet.getString("description"), customerDao.read(resultSet.getLong("customer_id")), resultSet.getInt("price"));
+            order.setId(resultSet.getLong("order_id"));
         } catch (SQLException e) {
             System.out.println("Order parse exception");
             e.printStackTrace();

@@ -13,6 +13,8 @@ public interface CustomerDao {
 
     Customer read(String login);
 
+    Customer read(Long id);
+
     void update(Customer customer);
 
     void delete(Customer customer);

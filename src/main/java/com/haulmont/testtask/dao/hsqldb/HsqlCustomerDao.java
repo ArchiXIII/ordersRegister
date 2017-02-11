@@ -52,6 +52,35 @@ public class HsqlCustomerDao implements CustomerDao {
                 customer = parseResultSet(resultSet);
             }
         } catch (SQLException e) {
+            System.out.println("Customer read exception");
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtils.closeQuietly(resultSet);
+            JdbcUtils.closeQuietly(preparedStatement);
+            JdbcUtils.closeQuietly(connection);
+        }
+        return customer;
+    }
+
+    @Override
+    public Customer read(Long id) {
+        String sql = "select * from customers where customer_id = ?;";
+
+        Customer customer = null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = HsqlDaoFactory.getInstance().getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, id);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                customer = parseResultSet(resultSet);
+            }
+        } catch (SQLException e) {
             System.out.println("Customer select exception");
             e.printStackTrace();
         } catch (Exception e) {
@@ -66,7 +95,7 @@ public class HsqlCustomerDao implements CustomerDao {
 
     @Override
     public void update(Customer customer) {
-        String sql = "update users set name = ?, surname = ?, middlename = ?, phone = ? where id = ?;";
+        String sql = "update customers set name = ?, surname = ?, patronymic = ?, phone = ? where customer_id = ?;";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -92,7 +121,7 @@ public class HsqlCustomerDao implements CustomerDao {
 
     @Override
     public void delete(Customer customer) {
-        String sql = "delete from users where id = ?;";
+        String sql = "delete from customers where customer_id = ?;";
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -116,8 +145,8 @@ public class HsqlCustomerDao implements CustomerDao {
     public Customer parseResultSet(ResultSet resultSet) {
         Customer customer = null;
         try {
-            customer = new Customer(resultSet.getString("name"), resultSet.getString("surname"), resultSet.getString("middlename"), resultSet.getString("phone"));
-            customer.setId(resultSet.getLong("id"));
+            customer = new Customer(resultSet.getString("name"), resultSet.getString("surname"), resultSet.getString("patronymic"), resultSet.getString("phone"));
+            customer.setId(resultSet.getLong("customer_id"));
         } catch (SQLException e) {
             System.out.println("Customer parse exeption");
             e.printStackTrace();
