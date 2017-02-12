@@ -97,6 +97,15 @@ public class MainUI extends UI {
         });
         horizontalLayout.addComponent(button3);
 
+        Button button4 = new Button("Список заказов");
+        button4.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                //
+            }
+        });
+        horizontalLayout.addComponent(button4);
+
         parentLayout.addComponent(horizontalLayout);
     }
 }
