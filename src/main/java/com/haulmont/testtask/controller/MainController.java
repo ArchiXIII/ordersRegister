@@ -35,10 +35,10 @@ public class MainController {
             order.setEndWorksDate(new Date());
             order.setState(State.COMPLETE);
             orderDao.update(order);
-            orderDao.delete(order);
+            //orderDao.delete(order);
         }
         System.out.println(order.toString());
 
-        customerDao.delete(customer);
+        //customerDao.delete(customer);
     }
 }

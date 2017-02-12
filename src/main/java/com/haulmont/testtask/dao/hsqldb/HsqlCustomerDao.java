@@ -5,6 +5,7 @@ import com.haulmont.testtask.dao.JdbcUtils;
 import com.haulmont.testtask.entity.Customer;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * Created by Черный on 06.02.2017.
@@ -91,6 +92,34 @@ public class HsqlCustomerDao implements CustomerDao {
             JdbcUtils.closeQuietly(connection);
         }
         return customer;
+    }
+
+    @Override
+    public ArrayList<Customer> readAll() {
+        String sql = "select * from customers;";
+
+        ArrayList<Customer> customers = new ArrayList<Customer>();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = HsqlDaoFactory.getInstance().getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                customers.add(parseResultSet(resultSet));
+            }
+        } catch (SQLException e) {
+            System.out.println("AllCustomers select exception");
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtils.closeQuietly(resultSet);
+            JdbcUtils.closeQuietly(preparedStatement);
+            JdbcUtils.closeQuietly(connection);
+        }
+        return customers;
     }
 
     @Override

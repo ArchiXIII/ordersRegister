@@ -1,6 +1,7 @@
 package com.haulmont.testtask.dao;
 
 import com.haulmont.testtask.dao.hsqldb.HsqlDaoFactory;
+import com.vaadin.server.VaadinService;
 import org.hsqldb.cmdline.SqlFile;
 
 import java.io.*;
@@ -41,10 +42,12 @@ public class JdbcUtils {
     }
 
     public static void createDB() {
+        String basepath = VaadinService.getCurrent()
+                .getBaseDirectory().getAbsolutePath();
         Connection connection = null;
         try {
             connection = HsqlDaoFactory.getInstance().getConnection();
-            SqlFile userDbSetup = new SqlFile( new File("createDB.sql"), null, false);
+            SqlFile userDbSetup = new SqlFile( new File(basepath + "/WEB-INF/createDB.sql"));
             userDbSetup.setConnection(connection);
             userDbSetup.setContinueOnError(true);
             userDbSetup.execute();
