@@ -22,13 +22,13 @@ public class EditCustomerWindow extends Window {
     private TextField phoneField;
 
     public EditCustomerWindow(Customer customer) {
-        super("");
+        super("Редактирование клиента");
         center();
 
         this.customer = customer;
 
         VerticalLayout layout = new VerticalLayout();
-        layout.addComponent(new Label("Редактирование клиента"));
+        //layout.addComponent(new Label("Редактирование клиента"));
         layout.setMargin(true);
 
         initTextFields(layout);

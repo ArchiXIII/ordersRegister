@@ -12,7 +12,7 @@ public interface CustomerDao {
 
     void create(Customer customer);
 
-    Customer read(String login);
+    Customer read(String name);
 
     Customer read(Long id);
 
