@@ -1,7 +1,6 @@
 package com.haulmont.testtask;
 
 import com.haulmont.testtask.dao.CustomerDao;
-import com.haulmont.testtask.dao.JdbcUtils;
 import com.haulmont.testtask.dao.hsqldb.HsqlCustomerDao;
 import com.haulmont.testtask.entity.Customer;
 import com.vaadin.annotations.Theme;
@@ -15,33 +14,42 @@ import java.util.ArrayList;
 
 @Theme(ValoTheme.THEME_NAME)
 public class MainUI extends UI {
-    private Table table;
     private ArrayList<Customer> customers;
     private String clickedTableString;
     private CustomerDao customerDao = new HsqlCustomerDao();
 
     @Override
     protected void init(VaadinRequest request) {
-        JdbcUtils.createDB();
+        VerticalLayout mainLayout = new VerticalLayout();
+        mainLayout.setSizeFull();
+        mainLayout.setMargin(true);
+        TabSheet tabsheet = new TabSheet();
+        mainLayout.addComponent(tabsheet);
 
-        VerticalLayout layout = new VerticalLayout();
-        layout.setSizeFull();
-        layout.setMargin(true);
+        VerticalLayout customerTab = new VerticalLayout();
+        customerTab.setCaption("Клиенты");
+        customerTab.setSizeFull();
+        customerTab.setMargin(true);
+        initTable(customerTab);
+        initButtons(customerTab);
+        tabsheet.addComponent(customerTab);
 
-        setContent(layout);
+        VerticalLayout orderTab = new VerticalLayout();
+        orderTab.setCaption("Заказы");
 
-        initTable(layout);
+        tabsheet.addComponent(orderTab);
 
-        initButtons(layout);
+
+        setContent(mainLayout);
     }
 
     private void initTable(VerticalLayout parentLayout){
-        table = new Table("Клиенты");
+        Table table = new Table("Клиенты");
         table.setSelectable(true);
-        table.addContainerProperty("Name", String.class, "");
-        table.addContainerProperty("Surname", String.class, "");
-        table.addContainerProperty("Patronymic", String.class, "");
-        table.addContainerProperty("Phone", String.class, "");
+        table.addContainerProperty("Имя", String.class, "");
+        table.addContainerProperty("Фамилия", String.class, "");
+        table.addContainerProperty("Отчество", String.class, "");
+        table.addContainerProperty("Телефон", String.class, "");
         table.setColumnCollapsingAllowed(true);
         table.setColumnReorderingAllowed(true);
         table.setSizeFull();
@@ -71,7 +79,7 @@ public class MainUI extends UI {
         button1.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                EditCustomerUI editCustomerUI = new EditCustomerUI(null);
+                EditCustomerWindow editCustomerUI = new EditCustomerWindow(null);
                 UI.getCurrent().addWindow(editCustomerUI);
             }
         });
@@ -81,7 +89,7 @@ public class MainUI extends UI {
         button2.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                EditCustomerUI editCustomerUI = new EditCustomerUI(customers.get(Integer.parseInt(clickedTableString)));
+                EditCustomerWindow editCustomerUI = new EditCustomerWindow(customers.get(Integer.parseInt(clickedTableString)));
                 UI.getCurrent().addWindow(editCustomerUI);
             }
         });
@@ -96,15 +104,6 @@ public class MainUI extends UI {
             }
         });
         horizontalLayout.addComponent(button3);
-
-        Button button4 = new Button("Список заказов");
-        button4.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                //
-            }
-        });
-        horizontalLayout.addComponent(button4);
 
         parentLayout.addComponent(horizontalLayout);
     }

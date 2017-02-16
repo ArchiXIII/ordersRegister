@@ -14,14 +14,14 @@ import com.vaadin.ui.themes.ValoTheme;
  * Created by admin on 12.02.2017.
  */
 @Theme(ValoTheme.THEME_NAME)
-public class EditCustomerUI extends Window {
+public class EditCustomerWindow extends Window {
     private Customer customer;
     private TextField nameField;
     private TextField surnameField;
     private TextField patronymicField;
     private TextField phoneField;
 
-    public EditCustomerUI(Customer customer) {
+    public EditCustomerWindow(Customer customer) {
         super("");
         center();
 
