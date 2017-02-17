@@ -22,7 +22,7 @@ public class EditCustomerWindow extends Window {
     private TextField phoneField;
 
     public EditCustomerWindow(Customer customer) {
-        super("Редактирование клиента");
+        super("Редактор клиента");
         center();
 
         this.customer = customer;
@@ -37,7 +37,7 @@ public class EditCustomerWindow extends Window {
     }
 
     private void initTextFields(VerticalLayout parentLayout){
-        nameField = new TextField("Name:");
+        nameField = new TextField("Имя:");
         nameField.addValidator(new StringLengthValidator(
                 "The name must be 1-30 letters",
                 1, 30, false));
@@ -45,7 +45,7 @@ public class EditCustomerWindow extends Window {
         nameField.setNullRepresentation("");
         nameField.setNullSettingAllowed(true);
 
-        surnameField = new TextField("Surname:");
+        surnameField = new TextField("Фамилия:");
         surnameField.addValidator(new StringLengthValidator(
                 "The surname must be 1-30 letters",
                 1, 30, false));
@@ -53,7 +53,7 @@ public class EditCustomerWindow extends Window {
         surnameField.setNullRepresentation("");
         surnameField.setNullSettingAllowed(true);
 
-        patronymicField = new TextField("Patronymic:");
+        patronymicField = new TextField("Отчество:");
         patronymicField.addValidator(new StringLengthValidator(
                 "The patronymic must be 1-30 letters",
                 1, 30, false));
@@ -61,7 +61,7 @@ public class EditCustomerWindow extends Window {
         patronymicField.setNullRepresentation("");
         patronymicField.setNullSettingAllowed(true);
 
-        phoneField = new TextField("Phone:");
+        phoneField = new TextField("Телефон:");
         phoneField.addValidator(new StringLengthValidator(
                 "The phone must be 1-20 letters",
                 1, 20, false));

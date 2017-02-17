@@ -60,7 +60,7 @@ public class MainUI extends UI {
     }
 
     private void initCustomerTable(VerticalLayout parentLayout){
-        Table table = new Table("Клиенты");
+        Table table = new Table();
         table.setSelectable(true);
         table.addContainerProperty("Имя", String.class, "");
         table.addContainerProperty("Фамилия", String.class, "");
@@ -123,7 +123,7 @@ public class MainUI extends UI {
     }
 
     private void initOrderTable(VerticalLayout orderLayout) {
-        Table table = new Table("Заказы");
+        Table table = new Table();
         table.setSelectable(true);
         table.addContainerProperty("Описание", String.class, "");
         table.addContainerProperty("Клиент", String.class, "");
@@ -138,13 +138,13 @@ public class MainUI extends UI {
         orderDao = new HsqlOrderDao();
         orders = orderDao.readAll();
         Order order;
-        String createDate = null;
+        String customerName = "";
+        String endWorksDate = "";
         for(int i = 0; i < orders.size(); i++) {
             order = orders.get(i);
-            if(order.getCreatedDate() != null){
-                createDate = order.getCreatedDate().toString();
-            }
-            table.addItem(new Object[]{order.getDescription(), order.getCustomer().getName(), createDate, order.getEndWorksDate().toString(), order.getPrice(), order.getState()},i);
+            if(order.getCustomer() != null) customerName = order.getCustomer().getName();
+            if(order.getEndWorksDate() != null) endWorksDate = order.getEndWorksDate().toString();
+            table.addItem(new Object[]{order.getDescription(), customerName, order.getCreatedDate().toString(), endWorksDate, order.getPrice(), order.getState().toString()},i);
         }
 
         orderLayout.addComponent(table);
