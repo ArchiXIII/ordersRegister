@@ -23,8 +23,13 @@ public class MainUI extends UI {
     private String clickedOrderTableString;
     private CustomerDao customerDao = new HsqlCustomerDao();
     private OrderDao orderDao = new HsqlOrderDao();
-    private VerticalLayout customerLayout;
-    private VerticalLayout orderLayout;
+    private VerticalLayout customerTableLayout;
+    private VerticalLayout mainOrderLayout;
+    private VerticalLayout orderTableLayout;
+
+    private TextField descriptionFilterField;
+    private TextField customerFilterField;
+    private TextField stateFilterField;
 
     @Override
     protected void init(VaadinRequest request) {
@@ -42,23 +47,26 @@ public class MainUI extends UI {
     }
 
     private void initCustomerTab(TabSheet tabSheet){
-        customerLayout = new VerticalLayout();
-        customerLayout.setCaption("Клиенты");
-        customerLayout.setSizeFull();
-        customerLayout.setMargin(true);
+        customerTableLayout = new VerticalLayout();
+        customerTableLayout.setCaption("Клиенты");
+        customerTableLayout.setSizeFull();
+        customerTableLayout.setMargin(true);
         initCustomerTable();
         initCustomerButtons();
-        tabSheet.addComponent(customerLayout);
+        tabSheet.addComponent(customerTableLayout);
     }
 
     private void initOrderTab(TabSheet tabSheet){
-        orderLayout = new VerticalLayout();
-        orderLayout.setCaption("Заказы");
-        orderLayout.setSizeFull();
-        orderLayout.setMargin(true);
+        mainOrderLayout = new VerticalLayout();
+        orderTableLayout = new VerticalLayout();
+        mainOrderLayout.setCaption("Заказы");
+        mainOrderLayout.setSizeFull();
+        mainOrderLayout.setMargin(true);
+        initOrderFilter();
+        mainOrderLayout.addComponent(orderTableLayout);
         initOrderTable();
         initOrderButtons();
-        tabSheet.addComponent(orderLayout);
+        tabSheet.addComponent(mainOrderLayout);
     }
 
     private void initCustomerTable(){
@@ -79,7 +87,7 @@ public class MainUI extends UI {
             table.addItem(new Object[]{cust.getName(), cust.getSurname(), cust.getPatronymic(), cust.getPhone()},i);
         }
 
-        customerLayout.addComponent(table);
+        customerTableLayout.addComponent(table);
         table.addItemClickListener(new ItemClickEvent.ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent itemClickEvent) {
@@ -89,7 +97,7 @@ public class MainUI extends UI {
     }
 
     private void reloadCustomerTable(){
-        customerLayout.removeAllComponents();
+        customerTableLayout.removeAllComponents();
         initCustomerTable();
         initCustomerButtons();
     }
@@ -142,7 +150,30 @@ public class MainUI extends UI {
         horizontalLayout.addComponent(button3);
         horizontalLayout.addComponent(new Label("*Вы не можете удалить клиента для которого есть заказы."));
 
-        customerLayout.addComponent(horizontalLayout);
+        customerTableLayout.addComponent(horizontalLayout);
+    }
+
+    private void initOrderFilter(){
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+
+        descriptionFilterField = new TextField("Описание:");
+        customerFilterField = new TextField("Клиент:");
+        stateFilterField = new TextField("Статус:");
+        horizontalLayout.addComponent(descriptionFilterField);
+        horizontalLayout.addComponent(customerFilterField);
+        horizontalLayout.addComponent(stateFilterField);
+        mainOrderLayout.addComponent(horizontalLayout);
+
+        Button filterButton = new Button("Применить");
+        filterButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                reloadOrderTab();
+            }
+        });
+        mainOrderLayout.addComponent(filterButton);
+        mainOrderLayout.addComponent(new Label(""));
+
     }
 
     private void initOrderTable() {
@@ -160,6 +191,23 @@ public class MainUI extends UI {
 
         orderDao = new HsqlOrderDao();
         orders = orderDao.readAll();
+
+        if(!"".equals(descriptionFilterField.getValue())){
+            for(int i = orders.size()-1; i >= 0; i--){
+                if(!orders.get(i).getDescription().toLowerCase().contains(descriptionFilterField.getValue().toLowerCase())) orders.remove(i);
+            }
+        }
+        if(!"".equals(customerFilterField.getValue())){
+            for(int i = orders.size()-1; i >= 0; i--){
+                if(!orders.get(i).getCustomer().getName().toLowerCase().contains(customerFilterField.getValue().toLowerCase())) orders.remove(i);
+            }
+        }
+        if(!"".equals(stateFilterField.getValue())){
+            for(int i = orders.size()-1; i >= 0; i--){
+                if(!orders.get(i).getState().toString().toLowerCase().contains(stateFilterField.getValue().toLowerCase())) orders.remove(i);
+            }
+        }
+
         Order order;
         String customerName = "";
         String endWorksDate;
@@ -172,7 +220,9 @@ public class MainUI extends UI {
             table.addItem(new Object[]{order.getDescription(), customerName, order.getCreatedDate().toString(), endWorksDate, order.getPrice(), order.getState().toString()},i);
         }
 
-        orderLayout.addComponent(table);
+
+
+        orderTableLayout.addComponent(table);
         table.addItemClickListener(new ItemClickEvent.ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent itemClickEvent) {
@@ -181,8 +231,8 @@ public class MainUI extends UI {
         });
     }
 
-    private void reloadOrderTable(){
-        orderLayout.removeAllComponents();
+    private void reloadOrderTab(){
+        orderTableLayout.removeAllComponents();
         initOrderTable();
         initOrderButtons();
     }
@@ -199,7 +249,7 @@ public class MainUI extends UI {
                 editOrderUI.addCloseListener(new Window.CloseListener() {
                     @Override
                     public void windowClose(Window.CloseEvent closeEvent) {
-                        reloadOrderTable();
+                        reloadOrderTab();
                     }
                 });
                 UI.getCurrent().addWindow(editOrderUI);
@@ -216,7 +266,7 @@ public class MainUI extends UI {
                 editOrderUI.addCloseListener(new Window.CloseListener() {
                     @Override
                     public void windowClose(Window.CloseEvent closeEvent) {
-                        reloadOrderTable();
+                        reloadOrderTab();
                     }
                 });
                 UI.getCurrent().addWindow(editOrderUI);
@@ -229,11 +279,11 @@ public class MainUI extends UI {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 orderDao.delete(orders.get(Integer.parseInt(clickedOrderTableString)));
-                reloadOrderTable();
+                reloadOrderTab();
             }
         });
         horizontalLayout.addComponent(button3);
 
-        orderLayout.addComponent(horizontalLayout);
+        orderTableLayout.addComponent(horizontalLayout);
     }
 }
