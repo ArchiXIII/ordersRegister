@@ -1,6 +1,7 @@
 package com.haulmont.testtask;
 
 import com.haulmont.testtask.dao.CustomerDao;
+import com.haulmont.testtask.dao.JdbcUtils;
 import com.haulmont.testtask.dao.OrderDao;
 import com.haulmont.testtask.dao.hsqldb.HsqlCustomerDao;
 import com.haulmont.testtask.dao.hsqldb.HsqlOrderDao;
@@ -8,7 +9,6 @@ import com.haulmont.testtask.entity.Customer;
 import com.haulmont.testtask.entity.Order;
 import com.vaadin.annotations.Theme;
 import com.vaadin.event.ItemClickEvent;
-import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -23,9 +23,13 @@ public class MainUI extends UI {
     private String clickedOrderTableString;
     private CustomerDao customerDao = new HsqlCustomerDao();
     private OrderDao orderDao = new HsqlOrderDao();
+    private VerticalLayout customerLayout;
+    private VerticalLayout orderLayout;
 
     @Override
     protected void init(VaadinRequest request) {
+        JdbcUtils.createDB();
+
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSizeFull();
         mainLayout.setMargin(true);
@@ -33,33 +37,31 @@ public class MainUI extends UI {
         mainLayout.addComponent(tabSheet);
 
         initCustomerTab(tabSheet);
-
         initOrderTab(tabSheet);
-
         setContent(mainLayout);
     }
 
     private void initCustomerTab(TabSheet tabSheet){
-        VerticalLayout customerLayout = new VerticalLayout();
+        customerLayout = new VerticalLayout();
         customerLayout.setCaption("Клиенты");
         customerLayout.setSizeFull();
         customerLayout.setMargin(true);
-        initCustomerTable(customerLayout);
-        initCustomerButtons(customerLayout);
+        initCustomerTable();
+        initCustomerButtons();
         tabSheet.addComponent(customerLayout);
     }
 
     private void initOrderTab(TabSheet tabSheet){
-        VerticalLayout orderLayout = new VerticalLayout();
+        orderLayout = new VerticalLayout();
         orderLayout.setCaption("Заказы");
         orderLayout.setSizeFull();
         orderLayout.setMargin(true);
-        initOrderTable(orderLayout);
-        initOrderButtons(orderLayout);
+        initOrderTable();
+        initOrderButtons();
         tabSheet.addComponent(orderLayout);
     }
 
-    private void initCustomerTable(VerticalLayout parentLayout){
+    private void initCustomerTable(){
         Table table = new Table();
         table.setSelectable(true);
         table.addContainerProperty("Имя", String.class, "");
@@ -77,7 +79,7 @@ public class MainUI extends UI {
             table.addItem(new Object[]{cust.getName(), cust.getSurname(), cust.getPatronymic(), cust.getPhone()},i);
         }
 
-        parentLayout.addComponent(table);
+        customerLayout.addComponent(table);
         table.addItemClickListener(new ItemClickEvent.ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent itemClickEvent) {
@@ -86,7 +88,13 @@ public class MainUI extends UI {
         });
     }
 
-    private void initCustomerButtons(VerticalLayout parentLayout){
+    private void reloadCustomerTable(){
+        customerLayout.removeAllComponents();
+        initCustomerTable();
+        initCustomerButtons();
+    }
+
+    private void initCustomerButtons(){
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
         Button button1 = new Button("Добавить");
@@ -94,6 +102,13 @@ public class MainUI extends UI {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 EditCustomerWindow editCustomerUI = new EditCustomerWindow(null);
+                editCustomerUI.setModal(true);
+                editCustomerUI.addCloseListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(Window.CloseEvent closeEvent) {
+                        reloadCustomerTable();
+                    }
+                });
                 UI.getCurrent().addWindow(editCustomerUI);
             }
         });
@@ -104,6 +119,13 @@ public class MainUI extends UI {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 EditCustomerWindow editCustomerUI = new EditCustomerWindow(customers.get(Integer.parseInt(clickedCustomerTableString)));
+                editCustomerUI.setModal(true);
+                editCustomerUI.addCloseListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(Window.CloseEvent closeEvent) {
+                        reloadCustomerTable();
+                    }
+                });
                 UI.getCurrent().addWindow(editCustomerUI);
             }
         });
@@ -114,15 +136,16 @@ public class MainUI extends UI {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 customerDao.delete(customers.get(Integer.parseInt(clickedCustomerTableString)));
-                Page.getCurrent().reload();
+                reloadCustomerTable();
             }
         });
         horizontalLayout.addComponent(button3);
+        horizontalLayout.addComponent(new Label("*Вы не можете удалить клиента для которого есть заказы."));
 
-        parentLayout.addComponent(horizontalLayout);
+        customerLayout.addComponent(horizontalLayout);
     }
 
-    private void initOrderTable(VerticalLayout orderLayout) {
+    private void initOrderTable() {
         Table table = new Table();
         table.setSelectable(true);
         table.addContainerProperty("Описание", String.class, "");
@@ -139,11 +162,13 @@ public class MainUI extends UI {
         orders = orderDao.readAll();
         Order order;
         String customerName = "";
-        String endWorksDate = "";
+        String endWorksDate;
         for(int i = 0; i < orders.size(); i++) {
             order = orders.get(i);
             if(order.getCustomer() != null) customerName = order.getCustomer().getName();
-            if(order.getEndWorksDate() != null) endWorksDate = order.getEndWorksDate().toString();
+            if(order.getEndWorksDate() != null) {
+                endWorksDate = order.getEndWorksDate().toString();
+            }else endWorksDate = "";
             table.addItem(new Object[]{order.getDescription(), customerName, order.getCreatedDate().toString(), endWorksDate, order.getPrice(), order.getState().toString()},i);
         }
 
@@ -156,7 +181,13 @@ public class MainUI extends UI {
         });
     }
 
-    private void initOrderButtons(VerticalLayout orderLayout) {
+    private void reloadOrderTable(){
+        orderLayout.removeAllComponents();
+        initOrderTable();
+        initOrderButtons();
+    }
+
+    private void initOrderButtons() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
         Button button1 = new Button("Добавить");
@@ -164,6 +195,13 @@ public class MainUI extends UI {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 EditOrderWindow editOrderUI = new EditOrderWindow(null);
+                editOrderUI.setModal(true);
+                editOrderUI.addCloseListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(Window.CloseEvent closeEvent) {
+                        reloadOrderTable();
+                    }
+                });
                 UI.getCurrent().addWindow(editOrderUI);
             }
         });
@@ -174,6 +212,13 @@ public class MainUI extends UI {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 EditOrderWindow editOrderUI = new EditOrderWindow(orders.get(Integer.parseInt(clickedOrderTableString)));
+                editOrderUI.setModal(true);
+                editOrderUI.addCloseListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(Window.CloseEvent closeEvent) {
+                        reloadOrderTable();
+                    }
+                });
                 UI.getCurrent().addWindow(editOrderUI);
             }
         });
@@ -184,7 +229,7 @@ public class MainUI extends UI {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 orderDao.delete(orders.get(Integer.parseInt(clickedOrderTableString)));
-                Page.getCurrent().reload();
+                reloadOrderTable();
             }
         });
         horizontalLayout.addComponent(button3);

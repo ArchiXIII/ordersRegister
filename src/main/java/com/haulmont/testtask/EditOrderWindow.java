@@ -8,10 +8,11 @@ import com.haulmont.testtask.entity.Order;
 import com.haulmont.testtask.entity.State;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.StringLengthValidator;
-import com.vaadin.server.Page;
 import com.vaadin.ui.*;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Черный on 16.02.2017.
@@ -20,9 +21,8 @@ public class EditOrderWindow extends Window {
     private Order order;
     private TextArea descriptionArea;
     private TextField customerField;
-    private TextField endWorksDateField;
     private TextField priceField;
-    private TextField stateField;
+    private ComboBox stateBox;
 
     public EditOrderWindow(Order order){
         super("Редактор заказа");
@@ -41,57 +41,47 @@ public class EditOrderWindow extends Window {
     private void initTextFields(VerticalLayout parentLayout) {
         descriptionArea = new TextArea("Описание:");
         descriptionArea.addValidator(new StringLengthValidator(
-                "The name must be 1-30 letters",
-                1, 30, false));
+                "Описание должно быть длинной 3-50 символов",
+                3, 50, false));
         descriptionArea.setImmediate(true);
         descriptionArea.setNullRepresentation("");
         descriptionArea.setNullSettingAllowed(true);
+        parentLayout.addComponent(descriptionArea);
 
-        customerField = new TextField("Имя:");
+        customerField = new TextField("Имя клиента:");
         customerField.addValidator(new StringLengthValidator(
-                "The surname must be 1-30 letters",
-                1, 30, false));
+                "Должно быть именем клиента зарегистрированного в системе",
+                2, 30, false));
         customerField.setImmediate(true);
         customerField.setNullRepresentation("");
         customerField.setNullSettingAllowed(true);
-
-        endWorksDateField = new TextField("Дата завершения заказа:");
-        endWorksDateField.addValidator(new StringLengthValidator(
-                "The patronymic must be 1-30 letters",
-                1, 30, false));
-        endWorksDateField.setImmediate(true);
-        endWorksDateField.setNullRepresentation("");
-        endWorksDateField.setNullSettingAllowed(true);
+        parentLayout.addComponent(customerField);
 
         priceField = new TextField("Стоимость:");
         priceField.addValidator(new StringLengthValidator(
-                "The phone must be 1-20 letters",
-                1, 20, false));
+                "Стоимость должна быть числом длинной 1-9 символов",
+                1, 9, false));
         priceField.setImmediate(true);
         priceField.setNullRepresentation("");
         priceField.setNullSettingAllowed(true);
-
-        stateField = new TextField("Статус:");
-        stateField.addValidator(new StringLengthValidator(
-                "The phone must be 1-20 letters",
-                1, 20, false));
-        stateField.setImmediate(true);
-        stateField.setNullRepresentation("");
-        stateField.setNullSettingAllowed(true);
+        parentLayout.addComponent(priceField);
 
         if(order != null){
+            List<State> states = Arrays.asList(
+                    State.PLANNED,
+                    State.COMPLETE,
+                    State.ADOPTED
+            );
+            stateBox = new ComboBox("Статус:", states);
+            stateBox.setNullSelectionAllowed(false);
+            parentLayout.addComponent(stateBox);
+
             descriptionArea.setValue(order.getDescription());
             customerField.setValue(order.getCustomer().getName());
-            if(order.getEndWorksDate() != null) endWorksDateField.setValue(order.getEndWorksDate().toString());
             priceField.setValue(order.getPrice().toString());
-            stateField.setValue(order.getState().toString());
+            stateBox.setValue(order.getState());
         }
 
-        parentLayout.addComponent(descriptionArea);
-        parentLayout.addComponent(customerField);
-        parentLayout.addComponent(endWorksDateField);
-        parentLayout.addComponent(priceField);
-        parentLayout.addComponent(stateField);
     }
 
     private void initButtons(VerticalLayout parentLayout){
@@ -105,15 +95,12 @@ public class EditOrderWindow extends Window {
                 try {
                     descriptionArea.validate();
                     customerField.validate();
-                    endWorksDateField.validate();
                     priceField.validate();
-                    stateField.validate();
+                    Integer.parseInt(priceField.getValue());
 
                     if(order != null){
                         editOrder();
                     }else createOrder();
-
-                    Page.getCurrent().reload();
                 } catch (Validator.InvalidValueException e) {
                     Notification.show(e.getMessage());
                     descriptionArea.setValidationVisible(true);
@@ -139,11 +126,13 @@ public class EditOrderWindow extends Window {
 
         order.setDescription(descriptionArea.getValue());
         order.setCustomer(customerDao.read(customerField.getValue()));
-        order.setEndWorksDate(new Date(endWorksDateField.getValue()));
+        order.setEndWorksDate(new Date());
+        if(stateBox.getValue().equals(State.COMPLETE)) order.setEndWorksDate(new Date());
         order.setPrice(Integer.parseInt(priceField.getValue()));
-        order.setState(State.valueOf(stateField.getValue()));
+        order.setState((State) stateBox.getValue());
         OrderDao orderDao = new HsqlOrderDao();
         orderDao.update(order);
+        close();
     }
 
     private  void createOrder(){
@@ -151,5 +140,6 @@ public class EditOrderWindow extends Window {
         order = new Order(descriptionArea.getValue(), customerDao.read(customerField.getValue()), Integer.parseInt(priceField.getValue()));
         OrderDao orderDao = new HsqlOrderDao();
         orderDao.create(order);
+        close();
     }
 }

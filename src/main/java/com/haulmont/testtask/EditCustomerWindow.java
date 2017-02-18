@@ -6,7 +6,6 @@ import com.haulmont.testtask.entity.Customer;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.StringLengthValidator;
-import com.vaadin.server.Page;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -28,7 +27,6 @@ public class EditCustomerWindow extends Window {
         this.customer = customer;
 
         VerticalLayout layout = new VerticalLayout();
-        //layout.addComponent(new Label("Редактирование клиента"));
         layout.setMargin(true);
 
         initTextFields(layout);
@@ -39,32 +37,32 @@ public class EditCustomerWindow extends Window {
     private void initTextFields(VerticalLayout parentLayout){
         nameField = new TextField("Имя:");
         nameField.addValidator(new StringLengthValidator(
-                "The name must be 1-30 letters",
-                1, 30, false));
+                "Имя должно быть длинной 2-30 символов",
+                2, 30, false));
         nameField.setImmediate(true);
         nameField.setNullRepresentation("");
         nameField.setNullSettingAllowed(true);
 
         surnameField = new TextField("Фамилия:");
         surnameField.addValidator(new StringLengthValidator(
-                "The surname must be 1-30 letters",
-                1, 30, false));
+                "Фамилия должна быть длинной 2-30 символов",
+                2, 30, false));
         surnameField.setImmediate(true);
         surnameField.setNullRepresentation("");
         surnameField.setNullSettingAllowed(true);
 
         patronymicField = new TextField("Отчество:");
         patronymicField.addValidator(new StringLengthValidator(
-                "The patronymic must be 1-30 letters",
-                1, 30, false));
+                "Отчество должно быть длинной 2-30 символов",
+                2, 30, false));
         patronymicField.setImmediate(true);
         patronymicField.setNullRepresentation("");
         patronymicField.setNullSettingAllowed(true);
 
         phoneField = new TextField("Телефон:");
         phoneField.addValidator(new StringLengthValidator(
-                "The phone must be 1-20 letters",
-                1, 20, false));
+                "Телефон должен состоять из цифр и быть длинной 2-11 символов",
+                2, 11, false));
         phoneField.setImmediate(true);
         phoneField.setNullRepresentation("");
         phoneField.setNullSettingAllowed(true);
@@ -95,12 +93,13 @@ public class EditCustomerWindow extends Window {
                     surnameField.validate();
                     patronymicField.validate();
                     phoneField.validate();
+                    Long.parseLong(phoneField.getValue());
 
                     if(customer != null){
                         editCustomer();
                     }else createCustomer();
 
-                    Page.getCurrent().reload();
+                    close();
                 } catch (Validator.InvalidValueException e) {
                     Notification.show(e.getMessage());
                     nameField.setValidationVisible(true);

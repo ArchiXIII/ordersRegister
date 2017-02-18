@@ -17,9 +17,9 @@ public class Order {
     public Order(String description, Customer customer, Integer price) {
         this.description = description;
         this.customer = customer;
-        this.createdDate = new Date();
+        createdDate = new Date();
         this.price = price;
-        this.state = State.PLANNED;
+        state = State.PLANNED;
     }
 
     public Long getId() {

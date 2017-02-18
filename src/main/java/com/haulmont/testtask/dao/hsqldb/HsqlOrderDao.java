@@ -4,6 +4,7 @@ import com.haulmont.testtask.dao.CustomerDao;
 import com.haulmont.testtask.dao.JdbcUtils;
 import com.haulmont.testtask.dao.OrderDao;
 import com.haulmont.testtask.entity.Order;
+import com.haulmont.testtask.entity.State;
 
 import java.sql.*;
 import java.sql.Date;
@@ -123,6 +124,9 @@ public class HsqlOrderDao implements OrderDao {
         try {
             order = new Order(resultSet.getString("description"), customerDao.read(resultSet.getLong("customer_id")), resultSet.getInt("price"));
             order.setId(resultSet.getLong("order_id"));
+            order.setCreatedDate(resultSet.getDate("created_date"));
+            order.setEndWorksDate(resultSet.getDate("end_works_date"));
+            order.setState(State.valueOf(resultSet.getString("state_order")));
         } catch (SQLException e) {
             System.out.println("Order parse exception");
             e.printStackTrace();
