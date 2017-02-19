@@ -4,6 +4,7 @@ import com.haulmont.testtask.dao.CustomerDao;
 import com.haulmont.testtask.dao.OrderDao;
 import com.haulmont.testtask.dao.hsqldb.HsqlCustomerDao;
 import com.haulmont.testtask.dao.hsqldb.HsqlOrderDao;
+import com.haulmont.testtask.entity.Customer;
 import com.haulmont.testtask.entity.Order;
 import com.haulmont.testtask.entity.State;
 import com.vaadin.data.Validator;
@@ -123,23 +124,28 @@ public class EditOrderWindow extends Window {
 
     private void editOrder(){
         CustomerDao customerDao = new HsqlCustomerDao();
-
-        order.setDescription(descriptionArea.getValue());
-        order.setCustomer(customerDao.read(customerField.getValue()));
-        order.setEndWorksDate(new Date());
-        if(stateBox.getValue().equals(State.COMPLETE)) order.setEndWorksDate(new Date());
-        order.setPrice(Integer.parseInt(priceField.getValue()));
-        order.setState((State) stateBox.getValue());
-        OrderDao orderDao = new HsqlOrderDao();
-        orderDao.update(order);
-        close();
+        Customer customer = customerDao.read(customerField.getValue());
+        if (customer != null) {
+            order.setDescription(descriptionArea.getValue());
+            order.setCustomer(customer);
+            order.setEndWorksDate(new Date());
+            if(stateBox.getValue().equals(State.COMPLETE)) order.setEndWorksDate(new Date());
+            order.setPrice(Integer.parseInt(priceField.getValue()));
+            order.setState((State) stateBox.getValue());
+            OrderDao orderDao = new HsqlOrderDao();
+            orderDao.update(order);
+            close();
+        }
     }
 
     private  void createOrder(){
         CustomerDao customerDao = new HsqlCustomerDao();
-        order = new Order(descriptionArea.getValue(), customerDao.read(customerField.getValue()), Integer.parseInt(priceField.getValue()));
-        OrderDao orderDao = new HsqlOrderDao();
-        orderDao.create(order);
-        close();
+        Customer customer = customerDao.read(customerField.getValue());
+        if (customer != null) {
+            order = new Order(descriptionArea.getValue(), customer, Integer.parseInt(priceField.getValue()));
+            OrderDao orderDao = new HsqlOrderDao();
+            orderDao.create(order);
+            close();
+        }
     }
 }

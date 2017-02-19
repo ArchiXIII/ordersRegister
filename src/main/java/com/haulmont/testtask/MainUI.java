@@ -23,6 +23,7 @@ public class MainUI extends UI {
     private String clickedOrderTableString;
     private CustomerDao customerDao = new HsqlCustomerDao();
     private OrderDao orderDao = new HsqlOrderDao();
+
     private VerticalLayout customerTableLayout;
     private VerticalLayout mainOrderLayout;
     private VerticalLayout orderTableLayout;
@@ -33,6 +34,7 @@ public class MainUI extends UI {
 
     @Override
     protected void init(VaadinRequest request) {
+        //database creation
         JdbcUtils.createDB();
 
         VerticalLayout mainLayout = new VerticalLayout();
@@ -46,6 +48,7 @@ public class MainUI extends UI {
         setContent(mainLayout);
     }
 
+    //init clients tab
     private void initCustomerTab(TabSheet tabSheet){
         customerTableLayout = new VerticalLayout();
         customerTableLayout.setCaption("Клиенты");
@@ -56,6 +59,7 @@ public class MainUI extends UI {
         tabSheet.addComponent(customerTableLayout);
     }
 
+    //init orders tab
     private void initOrderTab(TabSheet tabSheet){
         mainOrderLayout = new VerticalLayout();
         orderTableLayout = new VerticalLayout();
@@ -69,6 +73,7 @@ public class MainUI extends UI {
         tabSheet.addComponent(mainOrderLayout);
     }
 
+    //creating and filling of customers table from DB
     private void initCustomerTable(){
         Table table = new Table();
         table.setSelectable(true);
@@ -102,6 +107,7 @@ public class MainUI extends UI {
         initCustomerButtons();
     }
 
+    //Creating buttons for clients table
     private void initCustomerButtons(){
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
@@ -153,6 +159,7 @@ public class MainUI extends UI {
         customerTableLayout.addComponent(horizontalLayout);
     }
 
+    //Creating filters for orders table
     private void initOrderFilter(){
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
@@ -176,6 +183,7 @@ public class MainUI extends UI {
 
     }
 
+    //creating and filling of orders table from DB
     private void initOrderTable() {
         Table table = new Table();
         table.setSelectable(true);
@@ -192,6 +200,31 @@ public class MainUI extends UI {
         orderDao = new HsqlOrderDao();
         orders = orderDao.readAll();
 
+        filteringOrdersList();
+
+        Order order;
+        String customerName = "";
+        String endWorksDate;
+        for(int i = 0; i < orders.size(); i++) {
+            order = orders.get(i);
+            if(order.getCustomer() != null) customerName = order.getCustomer().getName();
+            if(order.getEndWorksDate() != null) {
+                endWorksDate = order.getEndWorksDate().toString();
+            }else endWorksDate = "";
+            table.addItem(new Object[]{order.getDescription(), customerName, order.getCreatedDate().toString(), endWorksDate, order.getPrice(), order.getState().toString()},i);
+        }
+
+        orderTableLayout.addComponent(table);
+        table.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+            @Override
+            public void itemClick(ItemClickEvent itemClickEvent) {
+                clickedOrderTableString = itemClickEvent.getItemId().toString();
+            }
+        });
+    }
+
+    //Filtering data from DB
+    private void filteringOrdersList(){
         if(!"".equals(descriptionFilterField.getValue())){
             for(int i = orders.size()-1; i >= 0; i--){
                 if(!orders.get(i).getDescription().toLowerCase().contains(descriptionFilterField.getValue().toLowerCase())) orders.remove(i);
@@ -207,28 +240,6 @@ public class MainUI extends UI {
                 if(!orders.get(i).getState().toString().toLowerCase().contains(stateFilterField.getValue().toLowerCase())) orders.remove(i);
             }
         }
-
-        Order order;
-        String customerName = "";
-        String endWorksDate;
-        for(int i = 0; i < orders.size(); i++) {
-            order = orders.get(i);
-            if(order.getCustomer() != null) customerName = order.getCustomer().getName();
-            if(order.getEndWorksDate() != null) {
-                endWorksDate = order.getEndWorksDate().toString();
-            }else endWorksDate = "";
-            table.addItem(new Object[]{order.getDescription(), customerName, order.getCreatedDate().toString(), endWorksDate, order.getPrice(), order.getState().toString()},i);
-        }
-
-
-
-        orderTableLayout.addComponent(table);
-        table.addItemClickListener(new ItemClickEvent.ItemClickListener() {
-            @Override
-            public void itemClick(ItemClickEvent itemClickEvent) {
-                clickedOrderTableString = itemClickEvent.getItemId().toString();
-            }
-        });
     }
 
     private void reloadOrderTab(){
@@ -237,6 +248,7 @@ public class MainUI extends UI {
         initOrderButtons();
     }
 
+    //Creating buttons for orders table
     private void initOrderButtons() {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
