@@ -42,12 +42,12 @@ public class JdbcUtils {
     }
 
     public static void createDB() {
-        String basepath = VaadinService.getCurrent()
+        String basePath = VaadinService.getCurrent()
                 .getBaseDirectory().getAbsolutePath();
         Connection connection = null;
         try {
             connection = HsqlDaoFactory.getInstance().getConnection();
-            SqlFile userDbSetup = new SqlFile( new File(basepath + "/WEB-INF/createDB.sql"));
+            SqlFile userDbSetup = new SqlFile( new File(basePath + "/WEB-INF/createDB.sql"));
             userDbSetup.setConnection(connection);
             userDbSetup.setContinueOnError(true);
             userDbSetup.execute();
